@@ -23,7 +23,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-8xl md:text-[11vw] font-serif italic font-black leading-[0.8] tracking-tighter"
+              className="text-6xl sm:text-7xl md:text-[11vw] font-serif italic font-black leading-[0.8] tracking-tighter"
             >
               Hanzo<span className="text-noir-500 font-sans not-italic">.</span>
             </motion.h1>

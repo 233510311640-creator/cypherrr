@@ -9,7 +9,7 @@ export default function Contact() {
           <div className="space-y-16">
             <div className="space-y-6">
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-500 block">Connection // 03</span>
-              <h2 className="text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8]">
+              <h2 className="text-5xl sm:text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8]">
                 Initiate <br />
                 <span className="text-white">Dialogue<span className="text-noir-500 font-sans not-italic">.</span></span>
               </h2>
@@ -21,7 +21,7 @@ export default function Contact() {
             <div className="space-y-8">
               <h4 className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-700">Priority Channel</h4>
               <a href="mailto:hello@hanzo.io" className="group block">
-                 <div className="text-sm md:text-3xl font-serif italic tracking-tight text-white border-b border-noir-900 pb-4 group-hover:border-white transition-colors">
+                 <div className="text-xl md:text-3xl font-serif italic tracking-tight text-white border-b border-noir-900 pb-4 group-hover:border-white transition-colors">
                    hello@hanzo.io
                  </div>
               </a>

@@ -22,7 +22,7 @@ export default function About() {
               viewport={{ once: true }}
               className="space-y-10"
             >
-              <h2 className="text-6xl md:text-8xl font-serif italic font-black tracking-tighter leading-[0.85]">
+              <h2 className="text-4xl sm:text-6xl md:text-8xl font-serif italic font-black tracking-tighter leading-[0.85]">
                 Hanzo<span className="text-noir-500 font-sans not-italic">.</span>
               </h2>
               

@@ -59,8 +59,8 @@ export default function App() {
       <main className="relative">
         <Hero />
         <About />
-        <div className="h-[20vh] w-full flex items-center justify-center pointer-events-none overflow-hidden bg-noir-950 border-y border-noir-900">
-           <div className="text-[12vw] font-serif italic text-white/[0.03] uppercase leading-none whitespace-nowrap">
+        <div className="h-[15vh] md:h-[20vh] w-full flex items-center justify-center pointer-events-none overflow-hidden bg-noir-950 border-y border-noir-900">
+           <div className="text-[15vw] md:text-[12vw] font-serif italic text-white/[0.03] uppercase leading-none whitespace-nowrap">
              EDITORIAL NOIR // VISUAL IDENTITY // CULTURAL ARTIFACTS
            </div>
         </div>

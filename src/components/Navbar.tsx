@@ -13,7 +13,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 px-6 py-8 md:px-12 border-b border-white/5 bg-noir-black/80 backdrop-blur-md">
+    <nav className="fixed top-0 left-0 w-full z-50 px-6 py-6 md:py-8 md:px-12 border-b border-white/5 bg-noir-black/80 backdrop-blur-md">
       <div className="flex justify-between items-center max-w-screen-2xl mx-auto">
         <motion.div 
           initial={{ opacity: 0 }}

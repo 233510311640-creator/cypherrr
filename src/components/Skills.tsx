@@ -35,7 +35,7 @@ export default function Skills() {
         <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-12">
           <div className="max-w-3xl">
             <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-500 block mb-6 px-1 border-l border-noir-800">Arsenal // 02</span>
-            <h2 className="text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8]">
+            <h2 className="text-5xl sm:text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8]">
               Creative <span className="opacity-20">Systems</span>
             </h2>
           </div>
@@ -62,7 +62,7 @@ export default function Skills() {
                 <div className="w-12 h-12 border border-noir-800 flex items-center justify-center text-noir-400 group-hover:text-white group-hover:border-white transition-all duration-500">
                   {cat.icon}
                 </div>
-                <h3 className="text-4xl font-serif italic font-medium tracking-tight h-16">{cat.title}</h3>
+                <h3 className="text-3xl sm:text-4xl font-serif italic font-medium tracking-tight sm:h-16">{cat.title}</h3>
                 <p className="text-[11px] text-noir-500 font-sans uppercase tracking-widest leading-relaxed opacity-80 min-h-[44px]">
                   {cat.description}
                 </p>
