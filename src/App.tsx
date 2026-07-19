@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -15,13 +15,19 @@ import PhotographyModal from "./components/PhotographyModal";
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setLoading(false);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <div className="relative bg-noir-black min-h-screen border-8 border-noir-900 selection:bg-white selection:text-black overflow-x-hidden">
@@ -32,7 +38,7 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-noir-black flex flex-col items-center justify-center p-6"
+            className="site-loader fixed inset-0 z-[100] bg-noir-black flex flex-col items-center justify-center p-6"
           >
              <div className="text-4xl font-serif italic mb-8 tracking-tighter">H.</div>
             <div className="w-64 h-[1px] bg-white/10 relative overflow-hidden">
@@ -50,7 +56,7 @@ export default function App() {
               className="mt-8 font-mono text-[9px] uppercase tracking-[0.5em] flex flex-col items-center"
             >
               <span>Authenticating Profile</span>
-              <span className="mt-2 text-noir-500 animate-pulse italic">HANZO.STUDIO // MMXXIV</span>
+              <span className="mt-2 text-noir-500 animate-pulse italic">HANZO.STUDIO // MMXXVI</span>
             </motion.div>
           </motion.div>
         ) : null}

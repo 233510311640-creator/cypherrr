@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Menu, X, Instagram, Twitter, Github } from "lucide-react";
+import { Menu, X, Instagram, Github } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -16,12 +16,27 @@ export default function Navbar() {
     { name: "Contact", href: "#contact" },
   ];
 
+  const socialLinks = [
+    {
+      label: "Instagram profile",
+      href: "https://www.instagram.com/bhumit_.singh?igsh=NDM3d3M3YXRxa24y&utm_source=qr",
+      Icon: Instagram,
+    },
+    {
+      label: "GitHub profile",
+      href: "https://github.com/233510311640-creator",
+      Icon: Github,
+    },
+  ];
+
   useEffect(() => {
     if (!isOpen) return;
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
+    const applicationRoot = document.getElementById("root");
     document.body.style.overflow = "hidden";
+    applicationRoot?.setAttribute("inert", "");
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -56,6 +71,7 @@ export default function Navbar() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousOverflow;
+      applicationRoot?.removeAttribute("inert");
       (previouslyFocused ?? openButtonRef.current)?.focus();
     };
   }, [isOpen]);
@@ -86,9 +102,18 @@ export default function Navbar() {
             </motion.a>
           ))}
           <div className="flex items-center space-x-6 ml-6 border-l border-noir-800 pl-6">
-            <Instagram className="w-3.5 h-3.5 cursor-pointer text-noir-500 hover:text-white transition-colors" />
-            <Twitter className="w-3.5 h-3.5 cursor-pointer text-noir-500 hover:text-white transition-colors" />
-            <Github className="w-3.5 h-3.5 cursor-pointer text-noir-500 hover:text-white transition-colors" />
+            {socialLinks.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${label} (opens in a new tab)`}
+                className="text-noir-500 hover:text-white transition-colors focus-visible:text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4"
+              >
+                <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+              </a>
+            ))}
           </div>
         </div>
 
@@ -97,7 +122,7 @@ export default function Navbar() {
           ref={openButtonRef}
           type="button"
           className="md:hidden text-white"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen(current => !current)}
           aria-label="Open navigation menu"
           aria-expanded={isOpen}
           aria-controls="mobile-navigation"

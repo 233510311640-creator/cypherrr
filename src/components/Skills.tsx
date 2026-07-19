@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Camera, Video, Palette, Target, Zap, Layers } from "lucide-react";
+import { Camera, Video, Palette, Target } from "lucide-react";
 
 const skillCategories = [
   {
@@ -59,8 +59,17 @@ export default function Skills({ onPhotographyClick }: SkillsProps) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               onClick={isPhotography ? onPhotographyClick : undefined}
+              onKeyDown={isPhotography ? (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onPhotographyClick?.();
+                }
+              } : undefined}
+              role={isPhotography ? "button" : undefined}
+              tabIndex={isPhotography ? 0 : undefined}
+              aria-label={isPhotography ? "Open photography gallery" : undefined}
               className={`group bg-noir-950 border border-noir-900 p-10 space-y-12 hover:bg-noir-900 transition-all duration-700 min-h-[450px] flex flex-col justify-between relative overflow-hidden ${
-                isPhotography ? "cursor-pointer hover:border-white/30 hover:shadow-[0_0_40px_rgba(255,255,255,0.04)]" : ""
+                isPhotography ? "cursor-pointer hover:border-white/30 focus-visible:border-white focus-visible:outline-none hover:shadow-[0_0_40px_rgba(255,255,255,0.04)]" : ""
               }`}
             >
               <div className="absolute top-0 right-0 p-4 font-mono text-[8px] text-white/5 tracking-[0.4em] vertical-rl rotate-180 uppercase pointer-events-none">

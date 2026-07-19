@@ -1,5 +1,4 @@
 import { motion } from "motion/react";
-import aboutImg from "../assets/download_1.jpg";
 
 export default function About() {
   return (
@@ -66,10 +65,15 @@ export default function About() {
               className="relative w-full aspect-[4/5] bg-noir-950 border border-noir-800 p-3 group overflow-hidden"
             >
                <img 
-                 src={aboutImg} 
-                 alt="Portrait Concept"
+                 src="/images/about-604.webp"
+                 srcSet="/images/about-480.webp 480w, /images/about-604.webp 604w"
+                 sizes="(min-width: 1024px) 42vw, 100vw"
+                 width={604}
+                 height={605}
+                 alt="Black-and-white illustration of hands holding two sword hilts."
                  className="w-full h-full object-cover grayscale opacity-30 group-hover:opacity-60 transition-opacity duration-1000"
                  loading="lazy"
+                 decoding="async"
                />
             </motion.div>
             

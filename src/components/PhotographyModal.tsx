@@ -1,34 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { photos, type PortfolioPhoto } from "../data/photos";
 
-// Canonical gallery assets served from /public/photography — 20 displayed photos
-const photos = [
-  { src: "/photography/0EEC6BF3-85B8-4414-A9D1-CD6785ABB48E.jpeg",         label: "Frame 01" },
-  { src: "/photography/1619995C-CA7F-43C6-A56B-61CB96D923E6.jpeg",         label: "Frame 02" },
-  { src: "/photography/43F6FA2C-3939-474B-9A79-57D7A9416A7D.jpeg",         label: "Frame 03" },
-  { src: "/photography/44CB2E56-2657-4ADF-97F2-0D3FC9B3E7AE.jpeg",         label: "Frame 04" },
-  { src: "/photography/67CCCD08-38E9-46A9-B5CC-8B1356154024_1_201_a.jpeg", label: "Frame 05" },
-  { src: "/photography/8E450533-33C1-4BC9-8F3D-9CD169054F74_1_201_a.jpeg", label: "Frame 06" },
-  { src: "/photography/8E8AC0B4-68DD-411C-B7BC-6F70586C36E6.jpeg",         label: "Frame 07" },
-  { src: "/photography/975DB45C-D720-4E93-80B2-B415A30F03C2.jpeg",         label: "Frame 08" },
-  { src: "/photography/DSC_0098.JPG",                                       label: "Frame 09" },
-  { src: "/photography/DSC_0181.JPG",                                       label: "Frame 10" },
-  { src: "/photography/DSC_0315.JPG",                                       label: "Frame 11" },
-  { src: "/photography/DSC_0724.JPG",                                       label: "Frame 12" },
-  { src: "/photography/DSC_0729.JPG",                                       label: "Frame 13" },
-  { src: "/photography/DSC_0739.JPG",                                       label: "Frame 14" },
-  { src: "/photography/DSC_0745.JPG",                                       label: "Frame 15" },
-  { src: "/photography/DSC_0992.JPG",                                       label: "Frame 16" },
-  { src: "/photography/DSC_1009.JPG",                                       label: "Frame 17" },
-  { src: "/photography/DSC_1038.JPG",                                       label: "Frame 18" },
-  { src: "/photography/DSC_1039.JPG",                                       label: "Frame 19" },
-  { src: "/photography/DSC_1050.JPG",                                       label: "Frame 20" },
-];
-
-// ─── Individual Photo Tile ────────────────────────────────────────────────────
 interface PhotoTileProps {
-  photo: { src: string; label: string };
+  photo: PortfolioPhoto;
   globalIndex: number;
   onOpen: (i: number) => void;
   className?: string;
@@ -37,16 +13,30 @@ interface PhotoTileProps {
 function PhotoTile({ photo, globalIndex, onOpen, className = "" }: PhotoTileProps) {
   const [hovered, setHovered] = useState(false);
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden cursor-pointer border border-noir-900 group ${className}`}
+    <button
+      type="button"
+      aria-label={`Open ${photo.label}: ${photo.alt}`}
+      className={`relative block w-full h-full overflow-hidden cursor-pointer border border-noir-900 group text-left appearance-none focus-visible:outline-none focus-visible:border-white ${className}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
       onClick={() => onOpen(globalIndex)}
+      onKeyDown={event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(globalIndex);
+        }
+      }}
     >
       <img
-        src={photo.src}
-        alt={photo.label}
+        src={photo.thumbnail.src}
+        alt={photo.alt}
+        width={photo.thumbnail.width}
+        height={photo.thumbnail.height}
+        sizes="(min-width: 1024px) 25vw, 50vw"
         loading="lazy"
+        decoding="async"
         className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-100 ${
           hovered ? "grayscale-0 brightness-90" : "grayscale brightness-50"
         }`}
@@ -64,7 +54,7 @@ function PhotoTile({ photo, globalIndex, onOpen, className = "" }: PhotoTileProp
       {/* Corner brackets */}
       <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-white/20 pointer-events-none z-10" />
       <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-white/20 pointer-events-none z-10" />
-    </div>
+    </button>
   );
 }
 
@@ -76,8 +66,17 @@ interface PhotographyModalProps {
 
 export default function PhotographyModal({ isOpen, onClose }: PhotographyModalProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+  const isLightboxOpen = lightboxIndex !== null;
 
-  const closeLightbox = () => setLightboxIndex(null);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+  const closeModal = useCallback(() => {
+    setLightboxIndex(null);
+    onClose();
+  }, [onClose]);
 
   const prevPhoto = useCallback(() => {
     setLightboxIndex(prev => (prev === null ? 0 : (prev - 1 + photos.length) % photos.length));
@@ -89,19 +88,73 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
 
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { lightboxIndex !== null ? closeLightbox() : onClose(); }
-      if (e.key === "ArrowLeft"  && lightboxIndex !== null) prevPhoto();
-      if (e.key === "ArrowRight" && lightboxIndex !== null) nextPhoto();
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, lightboxIndex, onClose, prevPhoto, nextPhoto]);
+  }, [isOpen]);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [isOpen]);
+    if (!isLightboxOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    lightboxCloseRef.current?.focus();
+
+    return () => previouslyFocused?.focus();
+  }, [isLightboxOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        isLightboxOpen ? closeLightbox() : closeModal();
+        return;
+      }
+
+      if (isLightboxOpen && event.key === "ArrowLeft") {
+        event.preventDefault();
+        prevPhoto();
+        return;
+      }
+
+      if (isLightboxOpen && event.key === "ArrowRight") {
+        event.preventDefault();
+        nextPhoto();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const activeDialog = isLightboxOpen ? lightboxRef.current : modalRef.current;
+      const focusableElements = activeDialog?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+
+      if (!focusableElements?.length) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [closeLightbox, closeModal, isLightboxOpen, isOpen, nextPhoto, prevPhoto]);
 
   // ── Build groups of 5 (1 hero + 4 grid) ──
   const groups: { hero: typeof photos[0]; tiles: typeof photos; heroIndex: number }[] = [];
@@ -117,7 +170,12 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          ref={modalRef}
           key="photo-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="photography-title"
+          aria-hidden={isLightboxOpen}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -151,16 +209,19 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
             </div>
             <div className="flex items-center gap-6">
               <span className="hidden sm:block font-mono text-[8px] text-noir-700 uppercase tracking-[0.4em] italic">
-                Hanzo.Studio // MMXXIV
+                Hanzo.Studio // MMXXVI
               </span>
               <button
+                ref={modalCloseRef}
                 id="photography-modal-close"
-                onClick={onClose}
+                type="button"
+                onClick={closeModal}
+                aria-label="Close photography gallery"
                 className="group flex items-center gap-3 text-noir-500 hover:text-white transition-colors duration-300"
               >
                 <span className="font-mono text-[9px] uppercase tracking-[0.3em] group-hover:italic">Close</span>
                 <div className="w-8 h-8 border border-noir-800 group-hover:border-white flex items-center justify-center transition-all duration-300">
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
                 </div>
               </button>
             </div>
@@ -173,7 +234,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
             transition={{ delay: 0.15 }}
             className="px-6 md:px-12 pt-14 pb-10"
           >
-            <h2 className="text-5xl sm:text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8] mb-4">
+            <h2 id="photography-title" className="text-5xl sm:text-7xl md:text-[8vw] font-serif italic font-black uppercase tracking-tighter leading-[0.8] mb-4">
               Visual <span className="opacity-20">Archive</span>
             </h2>
             <p className="text-noir-500 font-mono text-[10px] uppercase tracking-[0.3em] max-w-sm leading-relaxed">
@@ -220,7 +281,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                     style={{ gridTemplateColumns: `repeat(${all.length}, 1fr)` }}
                   >
                     {all.map((photo, si) => (
-                      <div key={photo.src} className="relative" style={{ paddingBottom: "75%" }}>
+                      <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "75%" }}>
                         <div className="absolute inset-0">
                           <PhotoTile
                             photo={photo}
@@ -266,7 +327,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                   className="grid grid-cols-2 gap-3"
                 >
                   {group.tiles.map((photo, si) => (
-                    <div key={photo.src} className="relative" style={{ paddingBottom: "100%" }}>
+                    <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
                       <PhotoTile
                         photo={photo}
                         globalIndex={group.heroIndex + si + 1}
@@ -302,7 +363,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                       </div>
                       <div className="grid grid-cols-2 gap-3" style={{ gridAutoRows: "1fr" }}>
                         {group.tiles.map((photo, si) => (
-                          <div key={photo.src} className="relative" style={{ paddingBottom: "100%" }}>
+                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
                             <div className="absolute inset-0">
                               <PhotoTile
                                 photo={photo}
@@ -318,7 +379,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                     <>
                       <div className="grid grid-cols-2 gap-3" style={{ gridAutoRows: "1fr" }}>
                         {group.tiles.map((photo, si) => (
-                          <div key={photo.src} className="relative" style={{ paddingBottom: "100%" }}>
+                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
                             <div className="absolute inset-0">
                               <PhotoTile
                                 photo={photo}
@@ -361,7 +422,11 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
       <AnimatePresence>
         {isOpen && lightboxIndex !== null && (
           <motion.div
+            ref={lightboxRef}
             key="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lightbox-title"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -369,15 +434,18 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
             className="fixed inset-0 z-[300] bg-noir-black/98 flex flex-col"
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-noir-900 shrink-0">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-500">
+              <span id="lightbox-title" className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-500">
                 {photos[lightboxIndex].label} // {lightboxIndex + 1} of {photos.length}
               </span>
               <button
+                ref={lightboxCloseRef}
+                type="button"
                 onClick={closeLightbox}
+                aria-label="Close lightbox and return to gallery"
                 className="group flex items-center gap-2 text-noir-500 hover:text-white transition-colors"
               >
                 <span className="font-mono text-[8px] uppercase tracking-[0.3em]">Back to grid</span>
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -385,8 +453,12 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
               <AnimatePresence mode="wait">
                 <motion.img
                   key={lightboxIndex}
-                  src={photos[lightboxIndex].src}
-                  alt={photos[lightboxIndex].label}
+                  src={photos[lightboxIndex].lightbox.src}
+                  alt={photos[lightboxIndex].alt}
+                  width={photos[lightboxIndex].lightbox.width}
+                  height={photos[lightboxIndex].lightbox.height}
+                  sizes="100vw"
+                  decoding="async"
                   initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.02 }}
@@ -398,17 +470,21 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
 
               <button
                 id="lightbox-prev"
+                type="button"
                 onClick={prevPhoto}
+                aria-label="Show previous photograph"
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 border border-noir-800 hover:border-white bg-noir-black/80 flex items-center justify-center text-noir-500 hover:text-white transition-all duration-300"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
               </button>
               <button
                 id="lightbox-next"
+                type="button"
                 onClick={nextPhoto}
+                aria-label="Show next photograph"
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 border border-noir-800 hover:border-white bg-noir-black/80 flex items-center justify-center text-noir-500 hover:text-white transition-all duration-300"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -417,15 +493,26 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
               <div className="flex gap-2 w-max mx-auto">
                 {photos.map((photo, idx) => (
                   <button
-                    key={photo.src}
+                    key={photo.thumbnail.src}
+                    type="button"
                     onClick={() => setLightboxIndex(idx)}
+                    aria-label={`Show ${photo.label}: ${photo.alt}`}
+                    aria-current={idx === lightboxIndex ? "true" : undefined}
                     className={`w-12 h-12 shrink-0 border transition-all duration-300 overflow-hidden ${
                       idx === lightboxIndex
                         ? "border-white opacity-100"
                         : "border-noir-800 opacity-40 hover:opacity-70"
                     }`}
                   >
-                    <img src={photo.src} alt={photo.label} className="w-full h-full object-cover grayscale" />
+                    <img
+                      src={photo.thumbnail.src}
+                      alt=""
+                      width={photo.thumbnail.width}
+                      height={photo.thumbnail.height}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover grayscale"
+                    />
                   </button>
                 ))}
               </div>

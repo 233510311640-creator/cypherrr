@@ -7,6 +7,7 @@
     "dev": "vite --port=3000",
     "build": "vite build",
     "preview": "vite preview",
+    "optimize:images": "node scripts/optimize-images.mjs",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"

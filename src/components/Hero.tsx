@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import { ArrowDownRight } from "lucide-react";
-import heroImg from "../assets/spikes.jpg";
 
 export default function Hero() {
   return (
@@ -69,10 +68,15 @@ export default function Hero() {
           <div className="relative w-full h-full bg-noir-950 border border-white/10 p-4 group">
              <div className="relative w-full h-full overflow-hidden grayscale contrast-125 brightness-75 group-hover:grayscale-0 transition-all duration-1000">
                 <img 
-                  src={heroImg} 
-                  alt="Hanzo Visual"
+                  src="/images/hero-719.webp"
+                  srcSet="/images/hero-480.webp 480w, /images/hero-719.webp 719w"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  width={719}
+                  height={1278}
+                  alt="White thorn-vine illustration on a black background."
                   className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
                   loading="eager"
+                  decoding="async"
                   fetchPriority="high"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-noir-black via-transparent to-transparent opacity-60"></div>

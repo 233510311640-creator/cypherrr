@@ -11,9 +11,9 @@
   --color-noir-950: #0a0a0a;
   --color-noir-900: #171717;
   --color-noir-800: #262626;
-  --color-noir-700: #404040;
-  --color-noir-500: #737373;
-  --color-noir-400: #a3a3a3;
+  --color-noir-700: #767676;
+  --color-noir-500: #8a8a8a;
+  --color-noir-400: #b3b3b3;
   --color-manga-violet: #8B5CF6;
 }
 
@@ -36,4 +36,28 @@
 
 .manga-lines {
   background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 0, transparent 40px);
+}
+
+:where([class~="text-[7px]"], [class~="text-[8px]"], [class~="text-[9px]"]) {
+  font-size: 0.625rem;
+  line-height: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .site-loader {
+    display: none;
+  }
 }
