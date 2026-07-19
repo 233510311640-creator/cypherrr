@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Exactly the files currently in /photgraphy images folder — 20 photos
+// Canonical gallery assets served from /public/photography — 20 displayed photos
 const photos = [
   { src: "/photography/0EEC6BF3-85B8-4414-A9D1-CD6785ABB48E.jpeg",         label: "Frame 01" },
   { src: "/photography/1619995C-CA7F-43C6-A56B-61CB96D923E6.jpeg",         label: "Frame 02" },

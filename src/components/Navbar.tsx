@@ -1,9 +1,13 @@
 import { motion } from "motion/react";
 import { Menu, X, Instagram, Twitter, Github } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const navLinks = [
     { name: "Portfolio", href: "#portfolio" },
@@ -11,6 +15,50 @@ export default function Navbar() {
     { name: "Skills", href: "#skills" },
     { name: "Contact", href: "#contact" },
   ];
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusableElements = menuRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      );
+
+      if (!focusableElements?.length) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      (previouslyFocused ?? openButtonRef.current)?.focus();
+    };
+  }, [isOpen]);
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 px-6 py-6 md:py-8 md:px-12 border-b border-white/5 bg-noir-black/80 backdrop-blur-md">
@@ -46,38 +94,53 @@ export default function Navbar() {
 
         {/* Mobile Toggle */}
         <button 
+          ref={openButtonRef}
+          type="button"
           className="md:hidden text-white"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen(true)}
+          aria-label="Open navigation menu"
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
         >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <Menu className="w-6 h-6" aria-hidden="true" />
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-0 left-0 w-full h-screen bg-manga-black flex flex-col items-center justify-center space-y-8 z-40 md:hidden"
-        >
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="text-4xl font-display font-bold uppercase tracking-tighter"
-            >
-              {link.name}
-            </a>
-          ))}
-          <button 
-            className="absolute top-8 right-6"
-            onClick={() => setIsOpen(false)}
+      {isOpen &&
+        createPortal(
+          <motion.div
+            ref={menuRef}
+            id="mobile-navigation"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed inset-0 bg-noir-black flex flex-col items-center justify-center space-y-8 z-[60] md:hidden"
           >
-            <X className="w-8 h-8" />
-          </button>
-        </motion.div>
-      )}
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="text-4xl font-sans font-bold uppercase tracking-tighter"
+              >
+                {link.name}
+              </a>
+            ))}
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="absolute top-8 right-6"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close navigation menu"
+            >
+              <X className="w-8 h-8" aria-hidden="true" />
+            </button>
+          </motion.div>,
+          document.body,
+        )}
     </nav>
   );
 }

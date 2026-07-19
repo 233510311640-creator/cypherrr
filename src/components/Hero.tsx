@@ -4,7 +4,7 @@ import heroImg from "../assets/spikes.jpg";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center px-6 md:px-12 pt-24 overflow-hidden editorial-grid">
+    <section id="portfolio" className="relative min-h-screen flex items-center px-6 md:px-12 pt-24 overflow-hidden editorial-grid">
       {/* Background Manga Lines Pattern */}
       <div className="absolute inset-0 manga-lines opacity-10 pointer-events-none"></div>
 
