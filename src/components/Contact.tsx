@@ -14,24 +14,30 @@ export default function Contact() {
                 <span className="text-white">Dialogue<span className="text-noir-500 font-sans not-italic">.</span></span>
               </h2>
               <p className="text-sm uppercase tracking-widest text-noir-500 leading-loose max-w-md">
-                Synthesizing vision into reality. Open for exclusive commissions and multidisciplinary partnerships.
+                would love to connect and work on different projects, love the experirence of creating the output than how it looks
               </p>
             </div>
 
             <div className="space-y-8">
               <h4 className="font-mono text-[9px] uppercase tracking-[0.4em] text-noir-700">Priority Channel</h4>
-              <a href="mailto:hello@hanzo.io" className="group block">
+              <a href="mailto:bikigaai@gmail.com" className="group block">
                  <div className="text-xl md:text-3xl font-serif italic tracking-tight text-white border-b border-noir-900 pb-4 group-hover:border-white transition-colors">
-                   hello@hanzo.io
+                   bikigaai@gmail.com
                  </div>
               </a>
             </div>
 
             <div className="flex space-x-4">
-              {[Instagram, Twitter, Github].map((Icon, i) => (
+              {[
+                { Icon: Instagram, href: "https://www.instagram.com/bhumit_.singh?igsh=NDM3d3M3YXRxa24y&utm_source=qr" },
+                { Icon: Twitter, href: "#" },
+                { Icon: Github, href: "https://github.com/233510311640-creator" }
+              ].map(({ Icon, href }, i) => (
                 <motion.a 
                   key={i}
-                  href="#"
+                  href={href}
+                  target={href !== "#" ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
                   whileHover={{ y: -3, color: "#FFFFFF" }}
                   className="w-12 h-12 border border-noir-900 flex items-center justify-center text-noir-500 hover:border-noir-700 transition-colors bg-noir-950"
                 >

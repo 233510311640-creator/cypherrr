@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import aboutImg from "../assets/download_1.jpg";
 
 export default function About() {
   return (
@@ -23,7 +24,7 @@ export default function About() {
               className="space-y-10"
             >
               <h2 className="text-4xl sm:text-6xl md:text-8xl font-serif italic font-black tracking-tighter leading-[0.85]">
-                Hanzo<span className="text-noir-500 font-sans not-italic">.</span>
+                Bhumit Singh<span className="text-noir-500 font-sans not-italic">.</span>
               </h2>
               
               <div className="space-y-8 text-noir-400 leading-relaxed text-sm uppercase tracking-wider max-w-lg">
@@ -32,7 +33,7 @@ export default function About() {
                 </p>
                 <div className="h-px w-24 bg-noir-800"></div>
                 <p>
-                  Specializing in photography, video post-production, and graphic systems, I transform raw data into cinematic narratives. My focus lies at the intersection of technical precision and artistic intensity.
+                  Have more interest in learning photography and video making process, starting to like more graphic desiging. I'm currently pursuing psychology hons course from DU, i just like to transform ideas into structured reality
                 </p>
               </div>
             </motion.div>
@@ -51,7 +52,7 @@ export default function About() {
                   <ul className="text-[11px] space-y-3 uppercase tracking-tight">
                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 border border-noir-700"></span> Adobe Suite</li>
                     <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 border border-noir-700"></span> Davinci Resolve</li>
-                    <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 border border-noir-700"></span> Unreal Engine</li>
+                    <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 border border-noir-700"></span> Affinity</li>
                   </ul>
                </div>
             </div>
@@ -65,13 +66,11 @@ export default function About() {
               className="relative w-full aspect-[4/5] bg-noir-950 border border-noir-800 p-3 group overflow-hidden"
             >
                <img 
-                 src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2000&auto=format&fit=crop" 
+                 src={aboutImg} 
                  alt="Portrait Concept"
                  className="w-full h-full object-cover grayscale opacity-30 group-hover:opacity-60 transition-opacity duration-1000"
+                 loading="lazy"
                />
-               <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-noir-black to-transparent">
-                  <div className="text-[10vw] font-serif italic font-black opacity-10 text-white leading-none">IDENTITY</div>
-               </div>
             </motion.div>
             
             <div className="flex justify-between items-end">

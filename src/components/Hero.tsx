@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowDownRight } from "lucide-react";
+import heroImg from "../assets/spikes.jpg";
 
 export default function Hero() {
   return (
@@ -16,7 +17,7 @@ export default function Hero() {
               className="flex items-center space-x-4 text-noir-500 font-mono text-[9px] uppercase tracking-[0.4em]"
             >
               <div className="w-12 h-px bg-noir-800"></div>
-              <span>Based in Neo-Tokyo // 2026</span>
+              <span>Based in the burning capital of the world</span>
             </motion.div>
             
             <motion.h1 
@@ -45,8 +46,8 @@ export default function Hero() {
             transition={{ delay: 0.6 }}
             className="flex flex-wrap gap-6 pt-4"
           >
-            <a href="#portfolio" className="group flex items-center space-x-6 border border-white px-10 py-5 font-mono text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-white hover:text-black transition-all duration-500">
-              <span>View Portfolio</span>
+            <a href="https://steamcommunity.com/profiles/76561199119154440/inventory" target="_blank" rel="noopener noreferrer" className="group flex items-center space-x-6 border border-white px-10 py-5 font-mono text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-white hover:text-black transition-all duration-500">
+              <span>Hanzo's Inventory</span>
               <ArrowDownRight className="w-4 h-4 group-hover:rotate-45 transition-transform" />
             </a>
             <div className="hidden sm:flex flex-col justify-center">
@@ -66,23 +67,15 @@ export default function Hero() {
         >
           {/* Main Visual Panel */}
           <div className="relative w-full h-full bg-noir-950 border border-white/10 p-4 group">
-             <div className="absolute top-0 right-0 p-4 font-mono text-[8px] text-white/20 tracking-widest vertical-rl rotate-180 uppercase">
-               Visual Identity // System Check
-             </div>
-             
              <div className="relative w-full h-full overflow-hidden grayscale contrast-125 brightness-75 group-hover:grayscale-0 transition-all duration-1000">
                 <img 
-                  src="https://images.unsplash.com/photo-1614728263952-84ea206f99b6?q=80&w=2000&auto=format&fit=crop" 
+                  src={heroImg} 
                   alt="Hanzo Visual"
                   className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+                  loading="eager"
+                  fetchPriority="high"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-noir-black via-transparent to-transparent opacity-60"></div>
-             </div>
-
-             {/* Minimalistic Signature Overlay */}
-             <div className="absolute -bottom-8 -right-8 bg-white text-black px-8 py-6 shadow-2xl">
-               <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-1">Established</p>
-               <p className="text-xs font-mono tracking-widest opacity-60 italic">MMXXIV // NOIR.01</p>
              </div>
           </div>
 

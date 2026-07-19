@@ -10,9 +10,11 @@ import Hero from "./components/Hero";
 import About from "./components/About";
 import Skills from "./components/Skills";
 import Contact from "./components/Contact";
+import PhotographyModal from "./components/PhotographyModal";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,9 +66,12 @@ export default function App() {
              EDITORIAL NOIR // VISUAL IDENTITY // CULTURAL ARTIFACTS
            </div>
         </div>
-        <Skills />
+        <Skills onPhotographyClick={() => setPhotoModalOpen(true)} />
         <Contact />
       </main>
+
+      {/* Photography Gallery Modal */}
+      <PhotographyModal isOpen={photoModalOpen} onClose={() => setPhotoModalOpen(false)} />
 
       {/* Design Accents from Template */}
       <div className="fixed top-1/2 left-4 -translate-y-1/2 hidden md:flex flex-col gap-4 opacity-30 z-50">
