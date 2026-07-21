@@ -48,6 +48,6 @@ Run `npm run optimize:images` after adding or replacing source photographs. Keep
 
 Run `npm run lint` and `npm run build`, then publish the generated `dist/` directory to a static host. Set `VITE_FORMSPREE_ENDPOINT` in the host's build environment if contact submission should be active. Vite variables are compiled into client JavaScript, so this value must be a client-safe Formspree form endpoint—not a private API key or server secret.
 
-The canonical link in `index.html` currently uses `/`, which resolves to the deployed origin. Before deploying under a subpath, update the canonical and social metadata to the final public URL. Social preview crawlers are most reliable with an absolute production URL, so the final domain should be added once it is known.
+The production site is available at [https://hanzoo.vercel.app](https://hanzoo.vercel.app). Canonical, social-sharing, structured-data, sitemap, and robots metadata use this production origin.
 
 Never commit `.env.local` or a real endpoint without first confirming that the value is intended to be public client configuration.
