@@ -6,7 +6,7 @@ const skillCategories = [
     title: "Photography",
     icon: <Camera className="w-6 h-6" />,
     skills: ["Post-Processing", "Color Grading", "Street Photography", "Analog Vibe"],
-    description: "have been memebr of photography team as well as handled the team as a head of 11 people"
+    description: "WORKED AS A PHOTOGRAPHER AND LATER LED THE PHOTOGRAPHY TEAM."
   },
   {
     title: "Video Production",
