@@ -28,11 +28,11 @@ export default function About() {
               
               <div className="space-y-8 text-noir-400 leading-relaxed text-sm uppercase tracking-wider max-w-lg">
                 <p>
-                  A multidisciplinary creative director and visual architect. My practice is defined by a rigorous commitment to <span className="text-white italic">High-Contrast Minimalism</span> and the gritty aesthetics of neo-noir futurism.
+                  A PSYCHOLOGY STUDENT WITH A GROWING INTEREST IN PHOTOGRAPHY, FILMMAKING, AND GRAPHIC DESIGN. I’M DRAWN TO <span className="text-white italic">HIGH-CONTRAST MINIMALISM</span> AND THE ATMOSPHERIC AESTHETICS OF NEO-NOIR FUTURISM.
                 </p>
                 <div className="h-px w-24 bg-noir-800"></div>
                 <p>
-                  Have more interest in learning photography and video making process, starting to like more graphic desiging. I'm currently pursuing psychology hons course from DU, i just like to transform ideas into structured reality
+                  MY WORK IS DRIVEN BY CURIOSITY, EXPERIMENTATION, AND A DESIRE TO TURN IDEAS INTO THOUGHTFUL VISUAL EXPERIENCES. I’M CURRENTLY DEVELOPING MY CREATIVE PRACTICE WHILE PURSUING A PSYCHOLOGY HONOURS DEGREE AT THE UNIVERSITY OF DELHI.
                 </p>
               </div>
             </motion.div>
