@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -12,10 +12,49 @@ import Skills from "./components/Skills";
 import Contact from "./components/Contact";
 import PhotographyModal from "./components/PhotographyModal";
 
+const isPhotographyLocation = () =>
+  window.location.hash === "#photography" || window.location.hash.startsWith("#photography/");
+
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(isPhotographyLocation);
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const syncPhotoModalWithHistory = () => {
+      setPhotoModalOpen(isPhotographyLocation());
+    };
+
+    window.addEventListener("popstate", syncPhotoModalWithHistory);
+    window.addEventListener("hashchange", syncPhotoModalWithHistory);
+
+    return () => {
+      window.removeEventListener("popstate", syncPhotoModalWithHistory);
+      window.removeEventListener("hashchange", syncPhotoModalWithHistory);
+    };
+  }, []);
+
+  const openPhotoModal = useCallback(() => {
+    if (!isPhotographyLocation()) {
+      window.history.pushState({ portfolioView: "photography" }, "", "#photography");
+    }
+    setPhotoModalOpen(true);
+  }, []);
+
+  const closePhotoModal = useCallback(() => {
+    if (!isPhotographyLocation()) {
+      setPhotoModalOpen(false);
+      return;
+    }
+
+    if (window.history.state?.portfolioView) {
+      window.history.back();
+      return;
+    }
+
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    setPhotoModalOpen(false);
+  }, []);
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -72,12 +111,12 @@ export default function App() {
              EDITORIAL NOIR // VISUAL IDENTITY // CULTURAL ARTIFACTS
            </div>
         </div>
-        <Skills onPhotographyClick={() => setPhotoModalOpen(true)} />
+        <Skills onPhotographyClick={openPhotoModal} />
         <Contact />
       </main>
 
       {/* Photography Gallery Modal */}
-      <PhotographyModal isOpen={photoModalOpen} onClose={() => setPhotoModalOpen(false)} />
+      <PhotographyModal isOpen={photoModalOpen} onClose={closePhotoModal} />
 
       {/* Design Accents from Template */}
       <div className="fixed top-1/2 left-4 -translate-y-1/2 hidden md:flex flex-col gap-4 opacity-30 z-50">

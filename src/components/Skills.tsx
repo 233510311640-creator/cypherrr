@@ -51,6 +51,7 @@ export default function Skills({ onPhotographyClick }: SkillsProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {skillCategories.map((cat, i) => {
             const isPhotography = cat.title === "Photography";
+            const isUnderWork = !isPhotography;
             return (
             <motion.div
               key={cat.title}
@@ -72,6 +73,31 @@ export default function Skills({ onPhotographyClick }: SkillsProps) {
                 isPhotography ? "cursor-pointer hover:border-white/30 focus-visible:border-white focus-visible:outline-none hover:shadow-[0_0_40px_rgba(255,255,255,0.04)]" : ""
               }`}
             >
+              {isUnderWork && (
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-noir-black/90 opacity-0 backdrop-blur-[2px] transition-opacity duration-500 group-hover:opacity-100"
+                >
+                  <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/10" />
+                  <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white/[0.06]" />
+                  <div className="absolute left-5 top-5 h-5 w-5 border-l border-t border-white/25" />
+                  <div className="absolute bottom-5 right-5 h-5 w-5 border-b border-r border-white/25" />
+
+                  <div className="relative px-6 text-center">
+                    <span className="mb-5 block font-mono text-[8px] uppercase tracking-[0.45em] text-noir-500">
+                      Archive Pending // 00
+                    </span>
+                    <span className="block font-serif text-4xl font-black italic uppercase leading-none tracking-tighter text-white sm:text-5xl">
+                      Under-Work
+                    </span>
+                    <span className="mx-auto mt-6 block h-px w-12 bg-white/40" />
+                    <span className="mt-5 block font-mono text-[8px] uppercase tracking-[0.35em] text-white/35">
+                      Transmission Soon
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="absolute top-0 right-0 p-4 font-mono text-[8px] text-white/5 tracking-[0.4em] vertical-rl rotate-180 uppercase pointer-events-none">
                 Data Stream // Level 0{i + 1}
               </div>
@@ -106,7 +132,7 @@ export default function Skills({ onPhotographyClick }: SkillsProps) {
                         View Gallery &rarr;
                       </span>
                     ) : (
-                      <span>Status: Active</span>
+                      <span>Status: Pending</span>
                     )}
                   </div>
                 </div>

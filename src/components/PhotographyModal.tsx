@@ -64,27 +64,84 @@ interface PhotographyModalProps {
   onClose: () => void;
 }
 
+const getPhotoIndexFromLocation = () => {
+  const match = window.location.hash.match(/^#photography\/(\d+)$/);
+  if (!match) return null;
+
+  const index = Number(match[1]) - 1;
+  return index >= 0 && index < photos.length ? index : null;
+};
+
+const photoGroups: { hero: PortfolioPhoto; tiles: PortfolioPhoto[]; heroIndex: number }[] = [];
+
+for (let index = 0; index < photos.length; index += 5) {
+  photoGroups.push({
+    hero: photos[index],
+    tiles: photos.slice(index + 1, index + 5),
+    heroIndex: index,
+  });
+}
+
 export default function PhotographyModal({ isOpen, onClose }: PhotographyModalProps) {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(getPhotoIndexFromLocation);
   const modalRef = useRef<HTMLDivElement>(null);
   const modalCloseRef = useRef<HTMLButtonElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const isLightboxOpen = lightboxIndex !== null;
 
-  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+  const openLightbox = useCallback((index: number) => {
+    window.history.pushState({ portfolioView: "photo" }, "", `#photography/${index + 1}`);
+    setLightboxIndex(index);
+  }, []);
+
+  const showPhoto = useCallback((index: number) => {
+    window.history.replaceState({ portfolioView: "photo" }, "", `#photography/${index + 1}`);
+    setLightboxIndex(index);
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    if (window.location.hash.match(/^#photography\/\d+$/)) {
+      if (window.history.state?.portfolioView === "photo") {
+        window.history.back();
+        return;
+      }
+
+      window.history.replaceState({ portfolioView: "photography" }, "", "#photography");
+    }
+
+    setLightboxIndex(null);
+  }, []);
   const closeModal = useCallback(() => {
     setLightboxIndex(null);
     onClose();
   }, [onClose]);
 
   const prevPhoto = useCallback(() => {
-    setLightboxIndex(prev => (prev === null ? 0 : (prev - 1 + photos.length) % photos.length));
-  }, []);
+    const nextIndex = lightboxIndex === null ? 0 : (lightboxIndex - 1 + photos.length) % photos.length;
+    showPhoto(nextIndex);
+  }, [lightboxIndex, showPhoto]);
 
   const nextPhoto = useCallback(() => {
-    setLightboxIndex(prev => (prev === null ? 0 : (prev + 1) % photos.length));
-  }, []);
+    const nextIndex = lightboxIndex === null ? 0 : (lightboxIndex + 1) % photos.length;
+    showPhoto(nextIndex);
+  }, [lightboxIndex, showPhoto]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const syncLightboxWithHistory = () => {
+      setLightboxIndex(getPhotoIndexFromLocation());
+    };
+
+    window.addEventListener("popstate", syncLightboxWithHistory);
+    window.addEventListener("hashchange", syncLightboxWithHistory);
+
+    return () => {
+      window.removeEventListener("popstate", syncLightboxWithHistory);
+      window.removeEventListener("hashchange", syncLightboxWithHistory);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -155,16 +212,6 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [closeLightbox, closeModal, isLightboxOpen, isOpen, nextPhoto, prevPhoto]);
-
-  // ── Build groups of 5 (1 hero + 4 grid) ──
-  const groups: { hero: typeof photos[0]; tiles: typeof photos; heroIndex: number }[] = [];
-  let i = 0;
-  while (i < photos.length) {
-    const hero = photos[i];
-    const tiles = photos.slice(i + 1, i + 5);
-    groups.push({ hero, tiles, heroIndex: i });
-    i += 5;
-  }
 
   return (
     <AnimatePresence>
@@ -243,8 +290,8 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
           </motion.div>
 
           {/* ── Editorial Sections ── */}
-          <div className="px-6 md:px-12 pb-24 space-y-3">
-            {groups.map((group, groupIdx) => {
+          <div className="mx-auto max-w-[1440px] px-6 md:px-12 pb-24 space-y-3">
+            {photoGroups.map((group, groupIdx) => {
               // Even index (0, 2, 4…) → big photo LEFT; odd (1, 3, 5…) → big photo RIGHT
               const bigOnLeft = groupIdx % 2 === 0;
 
@@ -257,12 +304,12 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: Math.min(groupIdx * 0.05, 0.4) }}
-                    className="h-64 w-full"
+                    className="h-48 md:h-56 w-full"
                   >
                     <PhotoTile
                       photo={group.hero}
                       globalIndex={group.heroIndex}
-                      onOpen={setLightboxIndex}
+                      onOpen={openLightbox}
                     />
                   </motion.div>
                 );
@@ -281,12 +328,12 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                     style={{ gridTemplateColumns: `repeat(${all.length}, 1fr)` }}
                   >
                     {all.map((photo, si) => (
-                      <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "75%" }}>
+                      <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "62.5%" }}>
                         <div className="absolute inset-0">
                           <PhotoTile
                             photo={photo}
                             globalIndex={group.heroIndex + si}
-                            onOpen={setLightboxIndex}
+                            onOpen={openLightbox}
                           />
                         </div>
                       </div>
@@ -295,56 +342,14 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                 );
               }
 
-              // Full group of 5 — editorial layout with alternating sides
-              // The 2x2 grid height = 2 equal square cells + gap
-              // The hero photo matches this exact height using the same ratio trick
-
-              const heroCol = (
-                <motion.div
-                  key="hero"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: Math.min(groupIdx * 0.05, 0.4) }}
-                  // This wrapper uses a CSS trick: 2 squares stacked = aspect 1:2 minus gap
-                  // We use a fixed height relative approach via the grid row
-                  className="relative"
-                >
-                  <PhotoTile
-                    photo={group.hero}
-                    globalIndex={group.heroIndex}
-                    onOpen={setLightboxIndex}
-                    className="absolute inset-0"
-                  />
-                </motion.div>
-              );
-
-              const gridCol = (
-                <motion.div
-                  key="grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: Math.min(groupIdx * 0.05 + 0.05, 0.45) }}
-                  className="grid grid-cols-2 gap-3"
-                >
-                  {group.tiles.map((photo, si) => (
-                    <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
-                      <PhotoTile
-                        photo={photo}
-                        globalIndex={group.heroIndex + si + 1}
-                        onOpen={setLightboxIndex}
-                        className="absolute inset-0"
-                      />
-                    </div>
-                  ))}
-                </motion.div>
-              );
+              // Full group of 5 — compact editorial layout with alternating sides
+              // The hero stretches to match the shallower 2x2 tile grid
 
               return (
                 <div
                   key={groupIdx}
                   className="grid grid-cols-2 gap-3"
-                  // Hero col matches the exact height of the 2x2 grid (2 squares + 1 gap)
-                  // We achieve this by stretching with items-stretch and making hero absolute-fill
+                  // Stretch the hero column to the exact height of the 2x2 grid
                   style={{ alignItems: "stretch" }}
                 >
                   {bigOnLeft ? (
@@ -356,19 +361,19 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                             <PhotoTile
                               photo={group.hero}
                               globalIndex={group.heroIndex}
-                              onOpen={setLightboxIndex}
+                              onOpen={openLightbox}
                             />
                           </div>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3" style={{ gridAutoRows: "1fr" }}>
                         {group.tiles.map((photo, si) => (
-                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
+                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "72%" }}>
                             <div className="absolute inset-0">
                               <PhotoTile
                                 photo={photo}
                                 globalIndex={group.heroIndex + si + 1}
-                                onOpen={setLightboxIndex}
+                                onOpen={openLightbox}
                               />
                             </div>
                           </div>
@@ -379,12 +384,12 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                     <>
                       <div className="grid grid-cols-2 gap-3" style={{ gridAutoRows: "1fr" }}>
                         {group.tiles.map((photo, si) => (
-                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "100%" }}>
+                          <div key={photo.thumbnail.src} className="relative" style={{ paddingBottom: "72%" }}>
                             <div className="absolute inset-0">
                               <PhotoTile
                                 photo={photo}
                                 globalIndex={group.heroIndex + si + 1}
-                                onOpen={setLightboxIndex}
+                                onOpen={openLightbox}
                               />
                             </div>
                           </div>
@@ -396,7 +401,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                             <PhotoTile
                               photo={group.hero}
                               globalIndex={group.heroIndex}
-                              onOpen={setLightboxIndex}
+                              onOpen={openLightbox}
                             />
                           </div>
                         </div>
@@ -495,7 +500,7 @@ export default function PhotographyModal({ isOpen, onClose }: PhotographyModalPr
                   <button
                     key={photo.thumbnail.src}
                     type="button"
-                    onClick={() => setLightboxIndex(idx)}
+                    onClick={() => showPhoto(idx)}
                     aria-label={`Show ${photo.label}: ${photo.alt}`}
                     aria-current={idx === lightboxIndex ? "true" : undefined}
                     className={`w-12 h-12 shrink-0 border transition-all duration-300 overflow-hidden ${
